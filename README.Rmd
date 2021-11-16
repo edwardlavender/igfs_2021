@@ -1,0 +1,72 @@
+---
+title:  The Irish Groundfish Survey (Leg One) 2021
+author: Edward Lavender^1,2\*^
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+^1^ Scottish Oceans Institute, University of St Andrews, Scotland  
+^2^ Centre for Research into Ecological and Environmental Modelling, University of St Andrews, Scotland
+
+^\*^ This repository is maintained by Edward Lavender (el72@st-andrews.ac.uk).
+
+[![Project Status: Active – The project has reached a stable, usable
+state and is being actively
+developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
+
+# Introduction
+
+The International Bottom Trawl Survey (IBTS) is an international survey that collects bottom trawl data in the North Atlantic to monitor fish stocks and support scientific research. Under the umbrella of the IBTS, multiple institutions conduct surveys. 
+
+The Irish Groundfish Survey (IGFS) is a survey effort coordinated by the Marine Institute (Ireland) that contributes to the IBTS. 
+
+This repository contains analyses of data collected during the first leg of the IGFS in October--November 2021, including: 
+
+1. **Vessel data**, including information on the ship's track;
+2. **Environmental data**, including conductivity, temperature and depth (CTD) data from CTD-rosette deployments and sensors attached to the trawl net;
+3. **Fish data**, including data on fishing stations, catches (species composition and weights) and biometrics (length--frequency data);
+
+The analyses are written in `R` and organised as an `R Project`. 
+
+<img src="README_img.png"/>
+
+_Figure 1. Aboard the Research Vessel Celtic Explorer on the Irish Groundfish Survey (November 2021). Photograph taken by author._
+
+# Structure 
+
+1. `data-raw/` contains raw data for the project: 
+    * `vessel/` contains vessel tracking data;
+    * `ctd/` contains CTD data; 
+    * `fish/` contains data on trawl stations, catches and biometrics in a file named `IGFS2021_SummaryData.xlsx`, sourced from the IGFS database by David Stokes;
+    * `spatial/` contains spatial data; 
+    * `process_data_raw.R` processes the raw data for use in this project. 
+
+2. `data/` contains processed data (from `process_data_raw.R`).
+
+3. `R/` contains `R` code for data analysis:
+    * `analyse_vessel_*.R` scripts analyse vessel data;
+    * `analyse_fish_*.R` scripts analyse fishing and fish data:
+        * `analyse_fish_stations.R` analyses trawl-location (station) data;
+        * `analyse_fish_catches.R` analyses fish catches (i.e., species composition and weights);
+        * `analyse_fish_biometrics.R` analyses fish biometrics (i.e., length--frequency data);
+        * `analyse_fish_spp.R` analyses catches and biometrics for selected species and groups;
+    * `analyse_ctd_*.R` scripts analyse CTD data.
+
+4. `fig/` contains figures.
+
+Note that the `data-raw/`, `data/` and `fig/` folders are not provided in the online version of this repository. 
+
+## Packages
+
+This repository uses a number of non-default packages, available from [The Comprehensive R Archive Network](https://cran.r-project.org). These can be installed with `install.packages()`. Two packages that are only available on [GitHub](https://github.com/) are also used:
+
+* [`prettyGraphics`](https://github.com/edwardlavender/prettyGraphics). This package is used for plotting. 
+* [`utils.add`](https://github.com/edwardlavender/utils.add). The `utils.add::basic_stats()` function is sometimes used as a convenient routine for summarising data. This could be replaced by base `R` functions, such as `summary()`. 
