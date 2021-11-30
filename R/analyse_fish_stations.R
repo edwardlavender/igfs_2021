@@ -40,12 +40,20 @@ png("./fig/map_stations.png",
     height = 10, width = 10, units = "in", res = 600)
 pp <- par(oma = c(2, 2, 2, 4))
 ## Define stations
-add_stations <- list(list(x = stations$fldShotLonDecimalDegrees,
-                          y = stations$fldShotLatDecimalDegrees),
-                     list(x = stations$fldHaulLonDecimalDegrees,
-                          y = stations$fldHaulLatDecimalDegrees)
-)
-add_stations <- NULL
+add_stations_type <- 2L
+if(add_stations_type == 1L){
+  add_stations <- list(list(x = stations$fldShotLonDecimalDegrees,
+                            y = stations$fldShotLatDecimalDegrees),
+                       list(x = stations$fldHaulLonDecimalDegrees,
+                            y = stations$fldHaulLatDecimalDegrees)
+                       )
+} else if(add_stations_type== 2L){
+  add_stations <- list(x = stations$mid_lon, y = stations$mid_lat, cex = 1.5)
+} else {
+  add_stations <- NULL
+}
+
+#
 ## Define base map
 axis_ls <- pretty_map(add_rasters = list(x = bathy,
                                          zlim = bathy_col_param$zlim,
@@ -78,11 +86,16 @@ TeachingDemos::subplot({
   trans <- 0.5
   xlim_inset <- c(-12, -4)
   ylim_inset <- c(51, 57.5)
+  if(!is.null(add_stations)){
+    add_stations_mini     <- add_stations
+    add_stations_mini$cex <- 0.5
+  }
   pretty_map(add_rasters = list(x = ocean,
                                 zlim = bathy_col_param$zlim,
                                 col = scales::alpha(bathy_col_param$col, trans),
                                 plot_method = raster::plot,
                                 legend = FALSE),
+             add_points = add_stations_mini,
              add_polys = list(x = isles, col = scales::alpha("lightgrey", trans)),
              xlim = xlim_inset, ylim = ylim_inset,
              crop_spatial = TRUE,

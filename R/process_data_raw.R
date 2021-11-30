@@ -45,6 +45,12 @@ stations$strata <- sapply(area, function(elm) elm[length(elm)])
 stations$depth <- NA
 for(i in 1:nrow(stations)) stations$depth[i] <- mean(c(stations$fldShotDepth[i], stations$fldHaulDepth))
 stations$col <- c("black", "red")[factor(stations$fldValidityCode, levels = c("V", "I"))]
+# Average haul locations
+stations$mid_lat <- stations$mid_lon <- NA
+for(i in 1:nrow(stations)){
+  stations$mid_lat[i] <- mean(c(stations$fldShotLatDecimalDegrees[i], stations$fldHaulLatDecimalDegrees[i]))
+  stations$mid_lon[i] <- mean(c(stations$fldShotLonDecimalDegrees[i], stations$fldHaulLonDecimalDegrees[i]))
+}
 
 #### Save stations
 saveRDS(stations, "./data/fish/stations.rds")
