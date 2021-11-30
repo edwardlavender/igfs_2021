@@ -16,6 +16,7 @@
 
 #### Wipe workspace
 rm(list = ls())
+source("./R/define_global_param.R")
 
 #### Essential packages
 library(magrittr)
@@ -23,12 +24,86 @@ library(prettyGraphics)
 
 #### Load data
 stations <- readRDS("./data/fish/stations.rds")
+coast    <- readRDS("./data/spatial/coast/coast_s.rds")
+isles    <- readRDS("./data/spatial/coast/isles_s.rds")
+bathy    <- raster::raster("./data/spatial/bathy/bathy.tif")
+ocean    <- raster::raster("./data/spatial/bathy/ocean.tif")
 
 
 ################################
 ################################
 #### Map stations
 
+#### Map stations (for leg 1: all off Northern Ireland)
+## Set up map
+png("./fig/map_stations.png",
+    height = 10, width = 10, units = "in", res = 600)
+pp <- par(oma = c(2, 2, 2, 4))
+## Define stations
+add_stations <- list(list(x = stations$fldShotLonDecimalDegrees,
+                          y = stations$fldShotLatDecimalDegrees),
+                     list(x = stations$fldHaulLonDecimalDegrees,
+                          y = stations$fldHaulLatDecimalDegrees)
+)
+add_stations <- NULL
+## Define base map
+axis_ls <- pretty_map(add_rasters = list(x = bathy,
+                                         zlim = bathy_col_param$zlim,
+                                         col = bathy_col_param$col),
+                      add_polys = list(x = coast, col = "grey"),
+                      add_points = add_stations,
+                      crop_spatial = TRUE,
+                      xlim = boundaries[1:2], ylim = boundaries[3:4]
+)
+
+## Add stations
+# Use arrows to mark movement from shooting to hauling locations
+arrows(x0 = stations$fldShotLonDecimalDegrees, y0 = stations$fldShotLatDecimalDegrees,
+       x1 = stations$fldHaulLonDecimalDegrees, y1 = stations$fldHaulLatDecimalDegrees,
+       col = "red",
+       length = 0.02)
+## Add CTD sampling stations
+
+##  Add scalebar and north arrow
+arrows(-10.5, y0 = 56, y1 = 56.8, length = 0.1, lwd = 2)
+# flapper::dist_btw_clicks(longlat = TRUE)
+raster::scalebar(d = 100,
+                 label = "100 km",
+                 xy = c(-9, 53.1),
+                 lonlat = TRUE)
+
+## Add inset with area enclosed
+TeachingDemos::subplot({
+  px <- par(new = TRUE)
+  trans <- 0.5
+  xlim_inset <- c(-12, -4)
+  ylim_inset <- c(51, 57.5)
+  pretty_map(add_rasters = list(x = ocean,
+                                zlim = bathy_col_param$zlim,
+                                col = scales::alpha(bathy_col_param$col, trans),
+                                plot_method = raster::plot,
+                                legend = FALSE),
+             add_polys = list(x = isles, col = scales::alpha("lightgrey", trans)),
+             xlim = xlim_inset, ylim = ylim_inset,
+             crop_spatial = TRUE,
+             pretty_axis_args = list(control_axis = list(lwd.ticks = 0, labels = FALSE, lwd = 2))
+  )
+  arrows(x0 = stations$fldShotLonDecimalDegrees, y0 = stations$fldShotLatDecimalDegrees,
+         x1 = stations$fldHaulLonDecimalDegrees, y1 = stations$fldHaulLatDecimalDegrees,
+         col = "red",
+         length = 0.01)
+  add_boundary_box(c(xlim_inset, ylim_inset), lwd = 1.5)
+  add_boundary_box(boundaries[1:4], border = "darkblue", lwd = 1.5)
+  par(px)
+}, x = c(-6.65, -5.0), y = c(53, 54.325), pars = list(xaxs = "i", yaxs = "i")
+)
+# Add back axes
+invisible(pretty_axis(axis_ls = axis_ls, add = TRUE))
+## Add titles
+mtext(side = 1, expression("Longitude (" * degree * ")"), cex = 1.25, line = 2)
+mtext(side = 2, expression("Latitude (" * degree * ")"), cex = 1.25, line = -1)
+mtext(side = 4, "Depth (m)", cex = 1.25, line = 3)
+dev.off()
 
 
 ################################
@@ -38,7 +113,7 @@ stations <- readRDS("./data/fish/stations.rds")
 #### Basic statistics
 nrow(stations)
 table(stations$fldValidityCode)
-range(stations$fldDateTimeHaul)
+range(stations$fldDateTimeShot)
 
 #### A summary of stations completed by area and gear type
 station_counts <-
