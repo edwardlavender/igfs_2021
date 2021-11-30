@@ -46,31 +46,41 @@ Groundfish Survey (November 2021). Photograph taken by author.*
 # Structure
 
 1.  `data-raw/` contains raw data for the project:
-    
-      - `vessel/` contains vessel tracking data;
-      - `ctd/` contains CTD data;
-      - `fish/` contains data on trawl stations, catches and biometrics
+
+    -   `vessel/` contains vessel tracking data;
+    -   `ctd/` contains CTD data;
+    -   `fish/` contains data on trawl stations, catches and biometrics
         in a file named `IGFS2021_SummaryData.xlsx`, sourced from the
         IGFS database by David Stokes;
-      - `spatial/` contains spatial data;
-      - `process_data_raw.R` processes the raw data for use in this
-        project.
+    -   `spatial/` contains spatial data:
+        -   `bathy/` contains bathymetry data for an area ({-15.75417°,
+            45.62500°}, {-15.75417°, 62.30417°}, {4.90000°, 62.30417°},
+            {4.90000°, 45.62500°}) around the British Isles from [The
+            General Bathymetric Chart of the
+            Oceans](https://www.gebco.net);
+        -   `coast/` contains administrative boundary data for the
+            Republic of Ireland (`gadm36_IRL_0_sp.rds`) and the United
+            Kingdom (`gadm36_GBR_0_sp.rds`) from the [Global
+            Administrative Areas database](https://www.gadm.org/)
+            (version 3.6);
 
 2.  `data/` contains processed data (from `process_data_raw.R`).
 
 3.  `R/` contains `R` code for data analysis:
-    
-      - `analyse_vessel_*.R` scripts analyse vessel data;
-      - `analyse_fish_*.R` scripts analyse fishing and fish data:
-          - `analyse_fish_stations.R` analyses trawl-location (station)
+
+    -   `process_data_raw.R` processes the raw data for use in this
+        project;
+    -   `analyse_vessel_*.R` scripts analyse vessel data;
+    -   `analyse_fish_*.R` scripts analyse fishing and fish data:
+        -   `analyse_fish_stations.R` analyses trawl-location (station)
             data;
-          - `analyse_fish_catches.R` analyses fish catches (i.e.,
+        -   `analyse_fish_catches.R` analyses fish catches (i.e.,
             species composition and weights);
-          - `analyse_fish_biometrics.R` analyses fish biometrics (i.e.,
+        -   `analyse_fish_biometrics.R` analyses fish biometrics (i.e.,
             length–frequency data);
-          - `analyse_fish_spp.R` analyses catches and biometrics for
+        -   `analyse_fish_spp.R` analyses catches and biometrics for
             selected species and groups;
-      - `analyse_ctd_*.R` scripts analyse CTD data.
+    -   `analyse_ctd_*.R` scripts analyse CTD data.
 
 4.  `fig/` contains figures.
 
@@ -84,9 +94,9 @@ This repository uses a number of non-default packages, available from
 can be installed with `install.packages()`. Two packages that are only
 available on [GitHub](https://github.com/) are also used:
 
-  - [`prettyGraphics`](https://github.com/edwardlavender/prettyGraphics).
+-   [`prettyGraphics`](https://github.com/edwardlavender/prettyGraphics).
     This package is used for plotting.
-  - [`utils.add`](https://github.com/edwardlavender/utils.add). The
+-   [`utils.add`](https://github.com/edwardlavender/utils.add). The
     `utils.add::basic_stats()` function is sometimes used as a
     convenient routine for summarising data. This could be replaced by
     base `R` functions, such as `summary()`.

@@ -46,12 +46,14 @@ _Figure 1. Aboard the Research Vessel Celtic Explorer on the Irish Groundfish Su
     * `vessel/` contains vessel tracking data;
     * `ctd/` contains CTD data; 
     * `fish/` contains data on trawl stations, catches and biometrics in a file named `IGFS2021_SummaryData.xlsx`, sourced from the IGFS database by David Stokes;
-    * `spatial/` contains spatial data; 
-    * `process_data_raw.R` processes the raw data for use in this project. 
+    * `spatial/` contains spatial data:
+        * `bathy/` contains bathymetry data for an area ({-15.75417°, 45.62500°}, {-15.75417°, 62.30417°}, {4.90000°, 62.30417°}, {4.90000°, 45.62500°}) around the British Isles from [The General Bathymetric Chart of the Oceans](https://www.gebco.net);
+        * `coast/` contains administrative boundary data for the Republic of Ireland (`gadm36_IRL_0_sp.rds`) and the United Kingdom (`gadm36_GBR_0_sp.rds`) from the [Global Administrative Areas database](https://www.gadm.org/) (version 3.6);
 
 2. `data/` contains processed data (from `process_data_raw.R`).
 
 3. `R/` contains `R` code for data analysis:
+    * `process_data_raw.R` processes the raw data for use in this project;
     * `analyse_vessel_*.R` scripts analyse vessel data;
     * `analyse_fish_*.R` scripts analyse fishing and fish data:
         * `analyse_fish_stations.R` analyses trawl-location (station) data;
