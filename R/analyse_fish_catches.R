@@ -51,7 +51,7 @@ spp_per_haul %>%
 png("./fig/map_n_spp_per_haul.png", height = 10, width = 10, units = "in", res = 600)
 ## Define colour scheme
 spp_per_haul_zlim <- c(15, 50)
-spp_per_haul_col_param <- pretty_cols_brewer(zlim = spp_per_haul_zlim)
+spp_per_haul_col_param <- pretty_cols_brewer(zlim = spp_per_haul_zlim, select = 2:8)
 spp_per_haul$col <- spp_per_haul_col_param$col[findInterval(spp_per_haul$n_spp, spp_per_haul_col_param$breaks)]
 spp_per_haul_paa <- pretty_axis(side = 4,
                                 lim = list(range(spp_per_haul_col_param$breaks)),
@@ -79,7 +79,7 @@ raster::scalebar(d = 100,
 TeachingDemos::subplot(add_colour_bar(data.frame(x = spp_per_haul_col_param$breaks,
                                                  col = c(spp_per_haul_col_param$col, NA)),
                                       pretty_axis_args = spp_per_haul_paa,
-                                      mtext_args = list(side = 4, "Species richness", line = 3)
+                                      mtext_args = list(side = 4, "Species richness", line = 3, cex = 1.25)
 ),
 x = c(-4.8, -4.5), y = c(54, 56))
 ## Add titles
@@ -106,14 +106,62 @@ write.table(hauls_league_tbl,
 #### Biomass
 
 #### Summarise the catch weight per haul
-catches %>%
+wt_per_haul <-
+  catches %>%
   dplyr::group_by(Haul) %>%
-  dplyr::summarise(n_spp = sum(Catch_Kg)) %>%
-  dplyr::pull(n_spp) %>%
+  dplyr::mutate(wt = sum(.data$Catch_Kg)) %>%
+  dplyr::slice(1L) %>%
+  dplyr::ungroup()
+wt_per_haul %>%
+  dplyr::pull(.data$wt) %>%
   utils.add::basic_stats()
+# min   mean median     max    sd    IQR    MAD
+# 45.45 817.85 549.44 5219.06 917.8 584.89 459.91
 
 #### Map the catch weight per haul
-
+## Code duplication
+# Note that this code is copied from the code for the map above,
+# ... with 'n_spp' replaced by 'wt', 'spp_per_haul' replaced by 'wt_per_haul' and any other
+# ... lines that have been updated flagged by '[updated ...]'.
+## Set up plot to save [updated title]
+png("./fig/map_catch_weight_per_haul.png", height = 10, width = 10, units = "in", res = 600)
+## Define colour scheme [updated zlim and findInterval]
+wt_per_haul_zlim <- c(45, 5250)
+wt_per_haul_col_param <- pretty_cols_brewer(zlim = wt_per_haul_zlim, select = 2:8)
+wt_per_haul$col <- wt_per_haul_col_param$col[findInterval(wt_per_haul$wt, wt_per_haul_col_param$breaks)]
+wt_per_haul_paa <- pretty_axis(side = 4,
+                                lim = list(range(wt_per_haul_col_param$breaks)),
+                                control_axis = list(las = TRUE),
+                                add = FALSE)
+## Base map [update scaling]
+pretty_map(add_rasters = list(x = bathy,
+                              plot_method = raster::plot,
+                              col = bathy_col_param$col,
+                              legend = FALSE),
+           add_polys = list(x = coast, col = "grey"),
+           add_points = list(x = wt_per_haul$Lon, y = wt_per_haul$Lat,
+                             pch = 21,
+                             cex = wt_per_haul$wt/400, # log10(wt_per_haul$wt/100),
+                             bg = wt_per_haul$col,
+                             col = wt_per_haul$col),
+           xlim = c(-11, -5),
+)
+arrows(-10.5, y0 = 56, y1 = 56.8, length = 0.1, lwd = 2)
+raster::scalebar(d = 100,
+                 label = "100 km",
+                 xy = c(-8, 53.1),
+                 lonlat = TRUE)
+## Add colour bar [updated zlab and zline]
+TeachingDemos::subplot(add_colour_bar(data.frame(x = wt_per_haul_col_param$breaks,
+                                                 col = c(wt_per_haul_col_param$col, NA)),
+                                      pretty_axis_args = wt_per_haul_paa,
+                                      mtext_args = list(side = 4, "Catch weight (kg)", line = 3.75, cex = 1.25)
+),
+x = c(-4.8, -4.5), y = c(54, 56))
+## Add titles
+mtext(side = 1, expression("Longitude (" * degree * ")"), cex = 1.25, line = 2)
+mtext(side = 2, expression("Latitude (" * degree * ")"), cex = 1.25, line = -2)
+dev.off()
 
 #### Table of the top 5 species wth the widest distribution
 hauls_league_tbl <-
