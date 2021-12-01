@@ -47,10 +47,12 @@ non_commercial
 boundaries <- raster::extent(c(-11, -5, 53, 57))
 
 #### bathy graphical parameters
-bathy_zlim <- raster::cellStats(raster::raster("./data/spatial/bathy/bathy.tif"), "range")
-bathy_col_param <- pretty_cols_brewer(bathy_zlim,
-                                      scheme = "Blues",
-                                      n_breaks = max(bathy_zlim))
+bathy_zlim <-
+  raster::cellStats(raster::raster("./data/spatial/bathy/bathy.tif"), "range")
+bathy_col_param <-
+  prettyGraphics::pretty_cols_brewer(bathy_zlim,
+                                     scheme = "Blues",
+                                     n_breaks = max(bathy_zlim))
 
 
 #### End of code.
