@@ -68,6 +68,8 @@ Groundfish Survey (November 2021). Photograph taken by author.*
 
 3.  `R/` contains `R` code for data analysis:
 
+    -   `define_global_param.R` defines variables/parameters required by
+        multiple scripts;
     -   `process_data_raw.R` processes the raw data for use in this
         project;
     -   `analyse_vessel_*.R` scripts analyse vessel data;
@@ -87,6 +89,15 @@ Groundfish Survey (November 2021). Photograph taken by author.*
 Note that the `data-raw/`, `data/` and `fig/` folders are not provided
 in the online version of this repository.
 
+<img src="README_img_2.png"/>
+
+*Figure 2. Example outputs of the `igfs_2021` project showing haul
+species composition. Each map refers to a selected group of species and
+shows the relative number of individuals of each species captured at
+each sampling station. Pie chart size is proportional to the total
+number of individuals captured at each station. Species codes are given
+in Stokes et al. (2014).*
+
 ## Packages
 
 This repository uses a number of non-default packages, available from
@@ -100,3 +111,8 @@ available on [GitHub](https://github.com/) are also used:
     `utils.add::basic_stats()` function is sometimes used as a
     convenient routine for summarising data. This could be replaced by
     base `R` functions, such as `summary()`.
+
+## References
+
+Stokes, D. et al. (2014). Irish Groundfish Survey Cruise Report,
+Sept. 24th – Dec. 17th, 2014. Marine Institute.

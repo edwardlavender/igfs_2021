@@ -53,6 +53,7 @@ _Figure 1. Aboard the Research Vessel Celtic Explorer on the Irish Groundfish Su
 2. `data/` contains processed data (from `process_data_raw.R`).
 
 3. `R/` contains `R` code for data analysis:
+    * `define_global_param.R` defines variables/parameters required by multiple scripts;
     * `process_data_raw.R` processes the raw data for use in this project;
     * `analyse_vessel_*.R` scripts analyse vessel data;
     * `analyse_fish_*.R` scripts analyse fishing and fish data:
@@ -66,9 +67,17 @@ _Figure 1. Aboard the Research Vessel Celtic Explorer on the Irish Groundfish Su
 
 Note that the `data-raw/`, `data/` and `fig/` folders are not provided in the online version of this repository. 
 
+<img src="README_img_2.png"/>
+
+_Figure 2. Example outputs of the `igfs_2021` project showing haul species composition. Each map refers to a selected group of species and shows the relative number of individuals of each species captured at each sampling station. Pie chart size is proportional to the total number of individuals captured at each station. Species codes are given in Stokes et al. (2014)._
+
 ## Packages
 
 This repository uses a number of non-default packages, available from [The Comprehensive R Archive Network](https://cran.r-project.org). These can be installed with `install.packages()`. Two packages that are only available on [GitHub](https://github.com/) are also used:
 
 * [`prettyGraphics`](https://github.com/edwardlavender/prettyGraphics). This package is used for plotting. 
 * [`utils.add`](https://github.com/edwardlavender/utils.add). The `utils.add::basic_stats()` function is sometimes used as a convenient routine for summarising data. This could be replaced by base `R` functions, such as `summary()`. 
+
+## References
+
+Stokes, D. et al. (2014). Irish Groundfish Survey Cruise Report, Sept. 24th – Dec. 17th, 2014. Marine Institute.
