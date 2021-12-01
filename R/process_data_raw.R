@@ -11,7 +11,7 @@
 
 #### Steps preceding this code
 # 1) Acquisition of fish data from IGFS database (via David Stokes)
-# 2) Acquisition of spatial data (sourced from Digimap)
+# 2) Acquisition of spatial data (sourced from GEBCO and GADM)
 
 
 ################################
@@ -188,6 +188,7 @@ ocean[ocean > max(bathy_col_param$zlim)] <- max(bathy_col_param$zlim)
 raster::plot(bathy)
 raster::writeRaster(bathy, "./data/spatial/bathy/bathy.tif", overwrite = TRUE)
 raster::writeRaster(ocean, "./data/spatial/bathy/ocean.tif", overwrite = TRUE)
+
 
 #### End of code.
 ################################
