@@ -119,7 +119,7 @@ catches_by_haul <-
   dplyr::slice(1L)
 
 #### Define variable to plot ('wt' or 'n')
-composition <- "n"
+composition <- "n" # "wt"
 
 #### Set up plot
 ## Plotting window
