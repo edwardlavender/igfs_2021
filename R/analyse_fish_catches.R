@@ -87,6 +87,7 @@ mtext(side = 1, expression("Longitude (" * degree * ")"), cex = 1.25, line = 2)
 mtext(side = 2, expression("Latitude (" * degree * ")"), cex = 1.25, line = -2)
 dev.off()
 
+
 #### Table of the top 5 species with the widest distribution
 hauls_league_tbl <-
   catches %>%
@@ -193,7 +194,6 @@ purrr::walk(seq_len(length(grps)), function(i){
 mtext(side = 1, expression("Longitude (" * degree * ")"), cex = 1.25, line = 0.5, outer = TRUE)
 mtext(side = 2, expression("Latitude (" * degree * ")"), cex = 1.25, line = 0.5, outer = TRUE)
 dev.off()
-
 
 
 ################################
