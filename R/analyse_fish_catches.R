@@ -103,6 +103,101 @@ write.table(hauls_league_tbl,
 
 ################################
 ################################
+#### Catch composition (by numbers or weight)
+
+#### Method
+# Here we plot the catch composition (by weight or numbers) for selected
+# ... species in selected groups. This selection  reduces the number of
+# ... species on each plot, which helps to keep plots interpretable.
+
+#### Define haul-specific catch numbers/weights
+catches_by_haul <-
+  catches %>%
+  dplyr::group_by(.data$Haul, .data$Species) %>%
+  dplyr::mutate(n = dplyr::n(),
+                wt = sum(.data$Catch_Kg)) %>%
+  dplyr::slice(1L)
+
+#### Define variable to plot ('wt' or 'n')
+composition <- "n"
+
+#### Set up plot
+## Plotting window
+png(paste0("./fig/map_composition_by_", composition, ".png"),
+    height = 10, width = 6, units = "in", res = 600)
+pp <- par(mfrow = c(3, 2), oma = c(3, 3, 2, 2), mar = c(2, 2, 2, 2))
+## List of groups
+grps <- list(Commerical = commerical,
+             Elasmobranchs = elasmobranchs,
+             Pelagics = pelagics,
+             `Commerical flat` = commerical_flat,
+             `Non-commerical` = non_commercial)
+## The 'scaling' factors (to scale point size appropriately for each group)
+# ... These were derived via trial and error.
+scaling <- list(wt = c(27.5, 18.5, 22.5, 10, 20),
+                n = c(7.5, 10, 7.5, 7.5, 7.5))
+
+#### Make the map for each group
+purrr::walk(seq_len(length(grps)), function(i){
+
+  #### Isolate data for group
+  # i <- 1L
+  grp <- grps[[i]]
+  catches_for_grp <- catches_by_haul %>% dplyr::filter(.data$Species %in% grp)
+
+  #### Assign species unique colours
+  catches_for_grp_cols <-
+    data.frame(spp = unique(catches_for_grp$Species),
+               col = RColorBrewer::brewer.pal(length(grp), "Spectral"))
+  catches_for_grp$col <-
+    catches_for_grp_cols$col[match(catches_for_grp$Species, catches_for_grp_cols$spp)]
+
+  #### Map species composition (by weight)
+  ## Base map [updated from the base map above with a faded colour scheme to improve pie chart clarity]
+  pretty_map(add_rasters = list(x = bathy,
+                                plot_method = raster::plot,
+                                col = bathy_col_param$col,
+                                legend = FALSE),
+             add_polys = list(x = coast, col = scales::alpha("grey", 0.25), border = "grey"),
+             xlim = c(-11, -5)
+             )
+  arrows(-10.5, y0 = 56, y1 = 56.8, length = 0.1, lwd = 2)
+  raster::scalebar(d = 100,
+                   label = "100 km",
+                   xy = c(-8, 53.1),
+                   lonlat = TRUE)
+  ## Plot title
+  mtext(side = 3,
+        text = bquote(bold(.(LETTERS[i])) ~ "(" *.(names(grps)[i]) * ")"),
+        cex = 1.25)
+
+  #### Add species composition for each haul
+  purrr::walk(split(catches_for_grp, catches_for_grp$Haul), function(h){
+    # h <- split(catches_for_grp, catches_for_grp$Haul)[[1]]
+    mapplots::add.pie(z = h[, composition, drop = TRUE], x = h$Lon[1], y = h$Lat[1],
+                      col = h$col,
+                      border = NA,
+                      labels = "",
+                      radius = log10(sum(h[, composition]))/scaling[[composition]][i])
+  })
+
+  #### Add colour key for species
+  mapplots::add.pie(z = rep(1, nrow(catches_for_grp_cols)),
+                    x = -6.7, y = 53.8, radius = 0.4,
+                    col = catches_for_grp_cols$col, border = NA,
+                    labels = catches_for_grp_cols$spp, font = 2
+  )
+
+})
+#### Add titles
+mtext(side = 1, expression("Longitude (" * degree * ")"), cex = 1.25, line = 0.5, outer = TRUE)
+mtext(side = 2, expression("Latitude (" * degree * ")"), cex = 1.25, line = 0.5, outer = TRUE)
+dev.off()
+
+
+
+################################
+################################
 #### Biomass
 
 #### Summarise the catch weight per haul
