@@ -61,7 +61,7 @@ _Figure 1. Aboard the Research Vessel Celtic Explorer on the Irish Groundfish Su
         * `analyse_fish_catches.R` analyses fish catches (i.e., species composition and weights);
         * `analyse_fish_biometrics.R` analyses fish biometrics (i.e., length--frequency data);
         * `analyse_fish_spp.R` analyses catches and biometrics for selected species and groups;
-    * `analyse_ctd_*.R` scripts analyse CTD data.
+    * `analyse_ctd_casts*.R` analyses CTD data;
 
 4. `fig/` contains figures.
 
