@@ -20,6 +20,11 @@
 
 #### Wipe workspace
 rm(list = ls())
+
+#### Essential packages
+library(prettyGraphics)
+
+#### Essential variables
 source("./R/define_global_param.R")
 
 
@@ -124,6 +129,109 @@ saveRDS(biometrics, "./data/fish/biometrics.rds")
 ################################
 #### CTD data
 
+################################
+#### CTD data summary
+
+#### Metadata_CE21013.csv
+# This contains the dates/times/locations for the two deployments of the
+# ... SBE CTD (termed CTD1 and CTD2).
+
+#### cruise_data_uncal_1mbinned.csv
+# This contains data from two CTD deployments
+# ... listed in Metadata_CE21013.csv:
+# ... ... one on 30/10/2021 off North East Ireland (in the Ocean)
+# ... ... ... [named CTD1]
+# ... ... one on 07/11/2021 in Loch Swilly (while sheltering from a storm)
+# ... ... ... [named CTD2]
+# For each deployment, only data on from the down-cast is included.
+
+#### CTD ROSE.txt
+# This contains data from one deployment of the mini CTD on 11-07-2021
+# This CTD was deployed alongside the SBE CTD in Loch Swilly for
+# ... comparison/validation.
+# This contains data from both the down-cast and the up-cast.
+
+
+################################
+#### (SBE) metadata
+
+#### Load data
+meta <- readr::read_csv("./data-raw/ctd/Metadata_CE21013.csv")
+
+#### Tidy columns
+nms <- c("timestamp_deck_checks", "cruise", "id", "lat", "lon", "timestamp", "linear_time")
+colnames(meta) <- nms
+meta <- meta[, c("id", "lat", "lon", "timestamp")]
+
+#### Save data
+saveRDS(meta, "./data/ctd/meta.rds")
+
+
+################################
+#### SBE data
+
+#### Read data
+sbe <- readr::read_csv("./data-raw/ctd/cruise_data_uncal_1mbinned.csv")
+
+#### Pull out relevant columns (CTD ID, depth, temperature, salinity)
+sbe$id        <- sbe$`CTD number`
+sbe$depth     <- sbe$depSM
+sbe$depth_neg <- abs(sbe$depth) * -1
+sbe$temp      <- sbe$t090C
+sbe$sal       <- sbe$sal00
+
+#### Select cols
+sbe <- sbe[, c("id", "depth", "depth_neg", "temp", "sal")]
+
+#### Save processed data
+saveRDS(sbe, "./data/ctd/sbe.rds")
+
+
+################################
+#### Rose data
+
+#### Load data
+rose <- read.table("./data-raw/ctd/CTD ROSE.txt", skip = 61)
+head(rose)
+
+#### Select columns
+rose <- rose[, c(1, 3, 8, 10, 11)]
+colnames(rose) <- c("time", "pressure", "temp", "sal", "density")
+
+#### Calculate depth from pressure
+## depth = (pressure [dbar] * 10000)/(density [kg/m^3] * gravitational acceleration [9.80665 m/s^2])
+# Convert pressure from dbar to Pa
+rose$pressure <- rose$pressure * 10000
+# Calculate depth
+calc_depth <-
+  function(pressure, density, gravity = 9.80665){
+    pressure/(density * gravity)
+  }
+calc_depth(rose$pressure[1], 1023.26)
+rose$depth     <- calc_depth(rose$pressure, rose$density)
+rose$depth_neg <- abs(rose$depth) * -1
+
+#### Focus on the depth data that corresponds to the SBE data
+# (There is a lot of noise near the surface which we'll exclude)
+rose <- rose[rose$depth >= 0, ]
+rose <- rose[rose$depth >= min(sbe$depth), ]
+
+#### Define a factor distinguishing the downcast and upcast
+bottom <- which.max(rose$depth)
+rose$direction <- factor("down", levels = c("down", "up"))
+rose$direction[bottom:nrow(rose)] <- "up"
+
+#### Visualise check for processed depth/temperature data
+pretty_plot(rose$temp, rose$depth_neg,
+            pretty_axis_args = list(side = 3:2),
+            type = "n")
+ind_down <- rose$direction == "down"
+ind_up   <- rose$direction == "up"
+lines(rose$temp[ind_down], rose$depth_neg[ind_down])
+lines(rose$temp[ind_up], rose$depth_neg[ind_up], col = "red")
+
+#### Save processed data
+saveRDS(rose, "./data/ctd/rose.rds")
 
 
 ################################
