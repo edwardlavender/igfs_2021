@@ -24,6 +24,7 @@ library(prettyGraphics)
 
 #### Load data
 stations <- readRDS("./data/fish/stations.rds")
+ctd_xy   <- readRDS("./data/ctd/meta.rds")
 coast    <- readRDS("./data/spatial/coast/coast_s.rds")
 isles    <- readRDS("./data/spatial/coast/isles_s.rds")
 bathy    <- raster::raster("./data/spatial/bathy/bathy.tif")
@@ -39,6 +40,7 @@ ocean    <- raster::raster("./data/spatial/bathy/ocean.tif")
 png("./fig/map_stations.png",
     height = 10, width = 10, units = "in", res = 600)
 pp <- par(oma = c(2, 2, 2, 4))
+
 ## Define stations
 add_stations_type <- 2L
 if(add_stations_type == 1L){
@@ -53,7 +55,6 @@ if(add_stations_type == 1L){
   add_stations <- NULL
 }
 
-#
 ## Define base map
 axis_ls <- pretty_map(add_rasters = list(x = bathy,
                                          zlim = bathy_col_param$zlim,
@@ -70,9 +71,14 @@ arrows(x0 = stations$fldShotLonDecimalDegrees, y0 = stations$fldShotLatDecimalDe
        x1 = stations$fldHaulLonDecimalDegrees, y1 = stations$fldHaulLatDecimalDegrees,
        col = "red",
        length = 0.02)
-## Add CTD sampling stations
+# Add CTD sampling stations
+points(ctd_xy$lon, ctd_xy$lat, pch = 18, col = "springgreen4", bg = "springgreen4", cex = 2.25)
 
-##  Add scalebar and north arrow
+## Label sampling stations
+text(-10.65, 54.45, "CTD", font = 2)
+text(-8.775, 56.525, "Trawl", font = 2)
+
+## Add scalebar and north arrow
 arrows(-10.5, y0 = 56, y1 = 56.8, length = 0.1, lwd = 2)
 # flapper::dist_btw_clicks(longlat = TRUE)
 raster::scalebar(d = 100,
