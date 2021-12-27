@@ -272,9 +272,10 @@ isles <- raster::bind(coast_ire, coast_gb)
 # Crop to boundaries (for speed)
 coast <- raster::crop(isles, boundaries)
 # Simplify coastline data using Douglas-Peuker algorithm for plotting speed
-isles_s <- rgeos::gSimplify(isles, tol = 0.005, topologyPreserve = TRUE)
+simp <- 0.005
+isles_s <- rgeos::gSimplify(isles, tol = simp, topologyPreserve = TRUE)
 raster::plot(isles_s)
-coast_s <- rgeos::gSimplify(coast, tol = 0.005, topologyPreserve = TRUE)
+coast_s <- rgeos::gSimplify(coast, tol = simp, topologyPreserve = TRUE)
 raster::plot(coast_s)
 
 #### Save coastline data
@@ -296,6 +297,46 @@ ocean[ocean > max(bathy_col_param$zlim)] <- max(bathy_col_param$zlim)
 raster::plot(bathy)
 raster::writeRaster(bathy, "./data/spatial/bathy/bathy.tif", overwrite = TRUE)
 raster::writeRaster(ocean, "./data/spatial/bathy/ocean.tif", overwrite = TRUE)
+
+#### Load ICES data
+# Source: https://gis.ices.dk/geonetwork/srv/api/records/c784a0a3-752f-4b50-b02f-f225f6c815eb
+ices <- sf::read_sf("./data-raw/spatial/ICES/ICES_areas/ICES_Areas_20160601_cut_dense_3857.shp")
+ices <- as(ices, "Spatial")
+# Lower resolution data are also available in the FishStatsUtils package:
+# devtools::install_github("James-Thorson-NOAA/FishStatsUtils")
+# ices <- rgdal::readOGR(system.file("region_shapefiles/IE-IGFS/Shapefile.shp", package = "FishStatsUtils"))
+
+#### Process and save ICES data
+
+## Steps
+# 1) ICES data are converted to WGS84 projection in R and saved to file
+# 2) In define_global_param.R, a bounding box in the region of interest
+# ... around Ireland with WGS84 projection is saved to file
+# 3) Both files are opened in QGIS and the ICES data are clipped to the limits
+# ... of the boundary box (via Vector > Geoprocessing Tools > Clip). The resultant
+# ... file is saved for further processing in R. This protocol is required
+# ... because the raster::crop() routines crash when applied to the raw ICES data
+# ... (even if first simplified).
+
+## (1) Define WGS84 projection
+ices <- sp::spTransform(ices, raster::crs(bathy))
+rgdal::writeOGR(ices, layer = "ices",
+                dsn = "./data-raw/spatial/ICES/ICES_Areas/wgs_84/",
+                driver = "ESRI Shapefile")
+
+## (2) QGIS processing
+# Crop the ices data to the boundary box around Ireland and save
+
+## (3) Simplify cropped data
+ices <- ices <- sf::read_sf("./data-raw/spatial/ICES/ICES_areas/ices_for_ire/ices_for_ire.shp")
+ices <- as(ices, "Spatial")
+# Simplify data for speed
+ices <- rgeos::gSimplify(ices, tol = simp, topologyPreserve = TRUE)
+raster::plot(ices)
+
+# Save ICES data
+saveRDS(ices, "./data/spatial/ices/ices.rds")
+
 
 
 #### End of code.

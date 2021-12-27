@@ -43,7 +43,19 @@ non_commercial
 ################################
 #### Spatial parameters
 
-#### area boundaries
+#### Ireland boundaries
+xlim_ire <- c(-12, -4)
+ylim_ire <- c(51, 57.5)
+box_ire  <- raster::extent(xlim_ire, ylim_ire)
+box_ire  <- as(box_ire, "SpatialPolygons")
+box_ire  <- as(box_ire, "SpatialPolygonsDataFrame")
+raster::crs(box_ire) <- raster::crs(raster::raster("./data/spatial/bathy/bathy.tif"))
+save <- FALSE
+if(save) rgdal::writeOGR(box_ire, layer = "box_ire",
+                         dsn = "./data-raw/spatial/ICES/boundaries/",
+                         driver = "ESRI Shapefile")
+
+#### Area (IGFS Leg One) boundaries
 boundaries <- raster::extent(c(-11, -5, 53, 57))
 
 #### bathy graphical parameters

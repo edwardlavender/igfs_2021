@@ -27,8 +27,63 @@ stations <- readRDS("./data/fish/stations.rds")
 ctd_xy   <- readRDS("./data/ctd/meta.rds")
 coast    <- readRDS("./data/spatial/coast/coast_s.rds")
 isles    <- readRDS("./data/spatial/coast/isles_s.rds")
+ices     <- readRDS("./data/spatial/ices/ices.rds")
 bathy    <- raster::raster("./data/spatial/bathy/bathy.tif")
 ocean    <- raster::raster("./data/spatial/bathy/ocean.tif")
+
+
+################################
+################################
+#### Map survey area
+
+## Set up figure
+png("./fig/map_study_site.png",
+    height = 10, width = 10, units = "in", res = 600)
+pp <- par(oma = c(2, 2, 2, 2))
+
+## Define ocean strata
+strata <- c("coastal", "medium", "deep", "slope")
+ocean_for_ire   <- raster::crop(ocean, box_ire)
+ocean_by_strata <- raster::cut(ocean_for_ire, breaks = c(0, 80, 120, 200, 600))
+raster::plot(ocean_by_strata)
+
+## Make map
+pretty_map(add_rasters = list(x = ocean_by_strata,
+                              col = rev(gray.colors(4)),
+                              zlim = c(1, 4),
+                              axis.args = list(at = 1:4, labels = strata),
+                              smallplot = c(0.8, 0.84, 0.2, 0.8)
+),
+add_polys = list(x = ices, lwd = 1),
+xlim = xlim_ire, ylim = ylim_ire
+)
+
+## Label Galway
+points(-9.062691, 53.270962, pch = 21, bg = "black", cex = 1.5)
+text(-8.5, 53.37, "Galway")
+
+## Addd boundary box (for leg one)
+add_boundary_box(boundaries[1:4], border = "darkblue", lwd = 1.5)
+
+## Add ICES labels (manually):
+text(x = c(-8.674607, -11.195115, -11.083916, -6.598894, -5.412772),
+     y = c(56.17305, 52.75777, 51.62530, 51.60364, 52.4313),
+     labels = c("VIa", "VIIb", "VIIj", "VIIg", "VIIa"),
+     font = 2
+)
+
+## Add scalebar and north arrow
+arrows(-11.5, y0 = 56.5, y1 = 57.2, length = 0.1, lwd = 2)
+raster::scalebar(d = 200,
+                 label = "200 km",
+                 xy = c(-8.5, 51.05),
+                 lonlat = TRUE)
+
+## Add titles
+mtext(side = 1, expression("Longitude (" * degree * ")"), cex = 1.25, line = 1.5)
+mtext(side = 2, expression("Latitude (" * degree * ")"), cex = 1.25, line = -3)
+mtext(side = 4, "Depth strata", cex = 1.25, line = 0)
+dev.off()
 
 
 ################################
