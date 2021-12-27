@@ -24,10 +24,33 @@ library(prettyGraphics)
 #### Load data
 sbe  <- readRDS("./data/ctd/sbe.rds")
 rose <- readRDS("./data/ctd/rose.rds")
+meta <- readRDS("./data/ctd/meta.rds")
 
 #### Define up/down indices for rose data
 ind_down <- rose$direction == "down"
 ind_up   <- rose$direction == "up"
+
+
+################################
+################################
+#### Summary table of CTD samples
+
+#### Define a tidy table of CTD deployment timies/locations
+meta_tidy <-
+  meta %>%
+  dplyr::mutate(lat = add_lagging_point_zero(plyr::round_any(lat, 0.00001), 5),
+                lon = add_lagging_point_zero(plyr::round_any(lon, 0.00001), 5),
+                timestamp = format(timestamp, "%d-%b %H:%M:%S")) %>%
+  dplyr::select(ID = id,
+                `Lon [o]` = lon,
+                `Lat [o]` = lat,
+                Time = timestamp
+  )
+
+#### Write table to file
+write.table(meta_tidy,
+            file = "./fig/ctd_meta.txt",
+            quote = FALSE, sep = ",", row.names = FALSE)
 
 
 ################################
