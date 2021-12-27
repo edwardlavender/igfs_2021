@@ -129,21 +129,58 @@ dev.off()
 ################################
 #### Station summaries
 
+#### Station details
+stations
+stations$fldCruiseStationNumber
+colnames(stations)
+station_summary <-
+  stations %>%
+  dplyr::mutate(fldDateTimeShot = format(fldDateTimeShot, "%d-%b %H:%m"),
+                fldShotLatDecimalDegrees = add_lagging_point_zero(fldShotLatDecimalDegrees, 3),
+                fldShotLonDecimalDegrees = add_lagging_point_zero(fldShotLonDecimalDegrees, 3),
+                fldHaulLatDecimalDegrees = add_lagging_point_zero(fldHaulLatDecimalDegrees, 3),
+                fldHaulLonDecimalDegrees = add_lagging_point_zero(fldHaulLonDecimalDegrees, 3),
+                ) %>%
+  dplyr::select(Station              = fldCruiseStationNumber,
+                Division             = area,
+                Stratum              = strata,
+                `Shoot (lat [o])`    = fldShotLatDecimalDegrees,
+                `Shoot (lon [o])`    = fldShotLonDecimalDegrees,
+                `Shoot (Depth [m])`  = fldShotDepth,
+                `Shoot (Time)`       = fldDateTimeShot,
+                `Haul (lat [o])`     = fldHaulLatDecimalDegrees,
+                `Haul (lon [o])`     = fldHaulLonDecimalDegrees,
+                `Haul (Depth [m])`   = fldHaulDepth,
+                Gear                 = Gear_Type,
+                `Duration [minutes]` = TowDurationMin,
+                Validity             = fldValidityCode)
+station_summary$Gear <- plyr::mapvalues(station_summary$Gear,
+                                        from = c("Groundgear_D", "Groundgear_A"),
+                                        to = c("D", "A"))
+write.table(station_summary,
+            file = "./fig/station_summary.txt",
+            quote = FALSE, sep = ",", row.names = FALSE)
+
 #### Basic statistics
-nrow(stations)
-table(stations$fldValidityCode)
-range(stations$fldDateTimeShot)
+nrow(stations) # 45
+table(stations$fldValidityCode) # I - 3, V = 42
+range(stations$fldDateTimeShot) #"2021-10-30 12:39:00 UTC" "2021-11-10 13:09:00 UTC"
 
 #### A summary of stations completed by area and gear type
 station_counts <-
   stations %>%
-  dplyr::group_by(area, Gear_Type, fldValidityCode) %>%
+  dplyr::group_by(area, strata, Gear_Type, fldValidityCode) %>%
   dplyr::summarise(n = dplyr::n()) %>%
-  dplyr::select(Area = area,
+  tidyr::pivot_wider(names_from = fldValidityCode, values_from = n) %>%
+  dplyr::select(Division = area,
+                Strata = strata,
                 Gear = Gear_Type,
-                Validity = fldValidityCode,
-                Count = n
-                )
+                `Count (V)` = V,
+                `Count (I)` = I,
+                ) %>%
+  dplyr::mutate(Strata = factor(Strata, levels = c("Coast", "Medium", "Deep", "Slope"))) %>%
+  dplyr::arrange(Division, Strata)
+station_counts$`Count (I)`[is.na(station_counts$`Count (I)`)] <- 0
 station_counts$Gear <- plyr::mapvalues(station_counts$Gear,
                                        from = c("Groundgear_D", "Groundgear_A"),
                                        to = c("D", "A"))
