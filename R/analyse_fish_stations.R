@@ -166,6 +166,7 @@ TeachingDemos::subplot({
          x1 = stations$fldHaulLonDecimalDegrees, y1 = stations$fldHaulLatDecimalDegrees,
          col = "red",
          length = 0.01)
+  points(ctd_xy$lon, ctd_xy$lat, pch = 18, col = "springgreen4", bg = "springgreen4", cex = 0.5)
   add_boundary_box(c(xlim_inset, ylim_inset), lwd = 1.5)
   add_boundary_box(boundaries[1:4], border = "darkblue", lwd = 1.5)
   par(px)
