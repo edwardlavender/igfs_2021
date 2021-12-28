@@ -255,9 +255,17 @@ write.table(station_counts,
 # vessel heave - not collected
 # vessel pitch
 
+#### Focus on valid tows
+stations <- stations[stations$fldValidityCode == "V", ]
+
+#### Basic statistics
+utils.add::basic_stats(stations$WindSpeed_Kts)
+utils.add::basic_stats(stations$Roll_deg)
+utils.add::basic_stats(stations$Pitch_deg)
+
 #### Set up figure
-png("./fig/vessel_conditions.png", height = 6, width = 12, units = "in", res = 600)
-pp <- par(mfrow = c(1, 3), oma = c(2, 2, 2, 2))
+png("./fig/vessel_conditions.png", height = 4, width = 12, units = "in", res = 600)
+pp <- par(mfrow = c(1, 3), oma = c(1.5, 2, 1, 1), mar = c(2, 2, 2, 2))
 cex.lab  <- 1.4
 cex.axis <- 1.4
 adj <- -0.1
@@ -281,21 +289,50 @@ mtext(side = 3, "C", font = 2, adj = adj)
 par(pp)
 dev.off()
 
+#### Table of vessel conditions
+# Tidy vessel conditions table
+vessel_conditions <-
+  stations %>%
+  dplyr::select(Station = fldCruiseStationNumber,
+                `Wind Speed (knots)` = WindSpeed_Kts,
+                `Roll [°]` = Roll_deg,
+                `Pitch [°]` = Pitch_deg
+  ) %>%
+  tidy_numbers(digits = c(0, 2, 2, 2))
+# Save table to file
+write.table(vessel_conditions,
+            file = "./fig/vessel_conditions.txt",
+            quote = FALSE, sep = ",", row.names = FALSE, na = "-")
+
 
 ################################
 ################################
-#### Swept area
+#### Trawl geometry
 
-#### Examine swept area (using summary statistics)
-utils.add::basic_stats(stations$WingSweptAreaKmSq)
-sum(stations$WingSweptAreaKmSq)
-pretty_hist(stations$WingSweptAreaKmSq)
-pretty_plot(stations$fldCruiseStationNumber, stations$WingSweptAreaKmSq)
+################################
+#### Summary table
+
+# Define summary table
+trawl_geom <-
+  stations %>%
+  dplyr::mutate(speed = Dist_Nmi/(TowDurationMin/60)) %>%
+  dplyr::select(Station                 = fldCruiseStationNumber,
+                `Door Spread (m)`       = DoorSpread,
+                `Headline Height (m)`   = fldHeadlineHeight,
+                `Wing speed (m)`       = WingSpread,
+                `Distance (Nmi)`        = Dist_Nmi,
+                `Speed (Nmi/hour)`      = speed,
+                `Wing Swept Area (km2)` = WingSweptAreaKmSq) %>%
+  tidy_numbers(digits = c(0, 1, 1, 1, 2, 2, 2))
+
+# Save to file
+write.table(trawl_geom,
+            file = "./fig/trawl_geom.txt",
+            quote = FALSE, sep = ",", row.names = FALSE, na = "-")
 
 
 ################################
-################################
-#### Trawl deployments (including geometry)
+#### Trawl geometry
 
 #### Key variables
 # tow times in relation to daylight hours
@@ -304,9 +341,12 @@ pretty_plot(stations$fldCruiseStationNumber, stations$WingSweptAreaKmSq)
 # speed against tow distance
 # mean tow depth against depth strata
 
+#### Summary statistics
+utils.add::basic_stats(stations$TowDurationMin)
+
 #### Set up plot to save
 png("./fig/trawl_properties.png",
-    height = 6, width = 8, units = "in", res = 600)
+    height = 6, width = 14, units = "in", res = 600)
 pp <- par(mfrow = c(2, 3), oma = c(2, 2, 2, 2), mar = c(2, 2, 2, 2))
 adj = -0.01
 line.xlab <- 2.5
@@ -353,17 +393,31 @@ mtext(side = 2, "Time (hours)", line = line.ylab, cex = cex.lab)
 mtext(side = 3, "A", font = 2, cex = cex.lab, adj = adj)
 
 # Add legend
-legend(min(stations$fldDateTimeShot), 24,
-       lty = c(1, 1, NA, NA),
-       pch = c(NA, NA, 22, 22),
-       col = c("black", "red", "black", "black"),
-       pt.bg = c(NA, NA, "white", "black"),
-       legend = c("Valid", "Invalid", "Day", "Night"),
-       ncol = 2,
-       bty = "n")
+use_legend_for_valid_only <- TRUE
+if(use_legend_for_valid_only){
+  legend(min(stations$fldDateTimeShot), 24,
+         pch = c(22, 22),
+         col = c("black", "black"),
+         pt.bg = c("white", "black"),
+         legend = c("Day", "Night"),
+         ncol = 2,
+         bty = "n")
+}
+use_legend_for_valid_and_invalid <- FALSE
+if(use_legend_for_valid_and_invalid){
+  legend(min(stations$fldDateTimeShot), 24,
+         lty = c(1, 1, NA, NA),
+         pch = c(NA, NA, 22, 22),
+         col = c("black", "red", "black", "black"),
+         pt.bg = c(NA, NA, "white", "black"),
+         legend = c("Valid", "Invalid", "Day", "Night"),
+         ncol = 2,
+         bty = "n")
+}
+
 
 #### Door spread against depth
-pretty_plot(stations$fldShotDepth, stations$DoorSpread,
+pretty_plot(stations$depth, stations$DoorSpread,
             cex.axis = cex.axis, xlab = "", ylab = "")
 mtext(side = 1, "Depth (m)", line = line.xlab, cex = cex.lab)
 mtext(side = 2, "Door spread (m)", line = line.ylab, cex = cex.lab)
@@ -371,13 +425,15 @@ mtext(side = 3, "B", font = 2, cex = cex.lab, adj = adj)
 
 #### Wing spread against headline height
 pretty_plot(stations$fldHeadlineHeight, stations$WingSpread,
-            xlab = "", ylab = "")
+            pretty_axis_args = list(control_digits = 1),
+            cex.axis = cex.axis, xlab = "", ylab = "")
 mtext(side = 1, "Headline height (m)", line = line.xlab, cex = cex.lab)
 mtext(side = 2, "Wing spread (m)", line = line.ylab, cex = cex.lab)
 mtext(side = 3, "C", font = 2, cex = cex.lab, adj = adj)
 
 #### Distance against speed
 pretty_plot(stations$Dist_Nmi, stations$Dist_Nmi/(stations$TowDurationMin/60),
+            pretty_axis_args = list(control_digits = 1),
             cex.axis = cex.axis, xlab = "", ylab = "")
 mtext(side = 1, "Distance (Nmi)", line = line.xlab, cex = cex.lab)
 mtext(side = 2, "Speed (Nmi/hour)", line = line.ylab, cex = cex.lab)
@@ -386,8 +442,8 @@ mtext(side = 3, "D", font = 2, cex = cex.lab, adj = adj)
 #### Depth against strata
 pretty_plot(stations$strata, stations$depth,
             cex.axis = cex.axis, xlab = "", ylab = "")
-mtext(side = 1, "Depth (m)", line = line.xlab, cex = cex.lab)
-mtext(side = 2, "Time (hours)", line = line.ylab, cex = cex.lab)
+mtext(side = 1, "Depth stratum", line = line.xlab, cex = cex.lab)
+mtext(side = 2, "Depth (m)", line = line.ylab, cex = cex.lab)
 mtext(side = 3, "E", font = 2, cex = cex.lab, adj = adj)
 
 ## Close figure
@@ -395,9 +451,29 @@ dev.off()
 
 
 ################################
-################################
-#### Environmental time series
+#### Swept area
 
+#### Examine swept area (using summary statistics)
+utils.add::basic_stats(stations$WingSweptAreaKmSq)
+swept_area_summaries <-
+  stations %>%
+  dplyr::group_by(area, strata) %>%
+  dplyr::summarise(swept_area = sum(WingSweptAreaKmSq)) %>%
+  dplyr::select(Division = area,
+                Stratum = strata,
+                `Wing Swept Area (km2)` = swept_area) %>%
+  dplyr::mutate(Stratum = factor(Stratum, levels = c("Coast", "Medium", "Deep", "Slope"))) %>%
+  dplyr::arrange(Division, Stratum)
+utils.add::basic_stats(swept_area_summaries$`Wing Swept Area (km2)`)
+swept_area_summaries <-
+  swept_area_summaries %>%
+  dplyr::mutate(`Wing Swept Area (km2)` = add_lagging_point_zero(plyr::round_any(`Wing Swept Area (km2)`, 0.01), 2))
+write.table(swept_area_summaries,
+            file = "./fig/swept_area_summaries.txt",
+            quote = FALSE, sep = ",", row.names = FALSE)
+sum(stations$WingSweptAreaKmSq)
+pretty_hist(stations$WingSweptAreaKmSq)
+pretty_plot(stations$fldCruiseStationNumber, stations$WingSweptAreaKmSq)
 
 
 #### End of code.
