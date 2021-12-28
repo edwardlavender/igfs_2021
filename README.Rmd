@@ -49,6 +49,7 @@ _Figure 1. Aboard the Research Vessel Celtic Explorer on the Irish Groundfish Su
     * `spatial/` contains spatial data:
         * `bathy/` contains bathymetry data for an area ({-15.75417°, 45.62500°}, {-15.75417°, 62.30417°}, {4.90000°, 62.30417°}, {4.90000°, 45.62500°}) around the British Isles from [The General Bathymetric Chart of the Oceans](https://www.gebco.net);
         * `coast/` contains administrative boundary data for the Republic of Ireland (`gadm36_IRL_0_sp.rds`) and the United Kingdom (`gadm36_GBR_0_sp.rds`) from the [Global Administrative Areas database](https://www.gadm.org/) (version 3.6);
+        * `ICES` contains International Council for the Exploration of the Sea (ICES) statistical area boundaries (`/ICES_areas/ICES_Areas_20160601_cut_dense_3857.shp`) for the North Atlantic from [ICES](https://gis.ices.dk/geonetwork/srv/api/records/c784a0a3-752f-4b50-b02f-f225f6c815eb);
 
 2. `data/` contains processed data (from `process_data_raw.R`).
 

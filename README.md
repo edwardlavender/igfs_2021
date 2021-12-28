@@ -63,6 +63,11 @@ Groundfish Survey (November 2021). Photograph taken by author.*
             Kingdom (`gadm36_GBR_0_sp.rds`) from the [Global
             Administrative Areas database](https://www.gadm.org/)
             (version 3.6);
+          - `ICES` contains International Council for the Exploration of
+            the Sea (ICES) statistical area boundaries
+            (`/ICES_areas/ICES_Areas_20160601_cut_dense_3857.shp`) for
+            the North Atlantic from
+            [ICES](https://gis.ices.dk/geonetwork/srv/api/records/c784a0a3-752f-4b50-b02f-f225f6c815eb);
 
 2.  `data/` contains processed data (from `process_data_raw.R`).
 
