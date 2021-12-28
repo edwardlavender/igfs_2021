@@ -36,13 +36,14 @@ biometric_league_tbl <-
   dplyr::mutate(n = dplyr::n()) %>%
   dplyr::slice(1L) %>%
   dplyr::ungroup() %>%
-  dplyr::filter(.data$n >= 50L) %>%
+  dplyr::filter(.data$n > 50L) %>%
   dplyr::arrange(dplyr::desc(.data$n)) %>%
   dplyr::select(`Common name` = .data$CommName,
                 `Scientific name` = .data$SciName,
                 N = .data$n)
+nrow(biometric_league_tbl)
 write.table(biometric_league_tbl, "./fig/biometric_league_tbl.txt",
-            na = "",
+            na = "-",
             quote = FALSE, sep = ",", row.names = FALSE)
 
 
@@ -57,7 +58,7 @@ biometric_ranks <-
   dplyr::group_by(.data$SppCode) %>%
   dplyr::summarise(n = dplyr::n()) %>%
   dplyr::filter(.data$n >= 50L) %>%
-  dplyr::arrange(.data$n)
+  dplyr::arrange(dplyr::desc(.data$n))
 # Define species for plotting
 biometrics_for_ranked <-
   biometrics[which(biometrics$SppCode %in% biometric_ranks$SppCode), ] %>%
