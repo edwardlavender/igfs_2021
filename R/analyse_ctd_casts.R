@@ -154,8 +154,8 @@ purrr::walk(1:2, function(i){
                    "blue", "royalblue", "skyblue"),
            pt.bg = c("black", "dimgrey", NA,
                      "blue", "royalblue",NA),
-           legend = c("SBE  [T]", expression("Rose [T"*""%down%""*"]"), expression("Rose [T"*""%up%""*"]"),
-                      "SBE  [S]", expression("Rose [S"*""%down%""*"]"), expression("Rose [S"*""%up%""*"]")),
+           legend = c("SBE  [T]", expression("ROSE [T"*""%down%""*"]"), expression("ROSE [T"*""%up%""*"]"),
+                      "SBE  [S]", expression("ROSE [S"*""%down%""*"]"), expression("ROSE [S"*""%up%""*"]")),
            bty = "n"
     )
   }
