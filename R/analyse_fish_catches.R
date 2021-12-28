@@ -30,9 +30,54 @@ bathy   <- raster::raster("./data/spatial/bathy/bathy.tif")
 
 ################################
 ################################
+#### Define species codes
+
+# Define species codes for selected species
+species_tbl <-
+  catches %>%
+  dplyr::group_by(Species) %>%
+  dplyr::slice(1L) %>%
+  dplyr::filter(Species %in% c(commerical,
+                               elasmobranchs,
+                               pelagics,
+                               non_commercial,
+                               commerical_flat)) %>%
+  dplyr::mutate(fldCommonName = stringr::str_to_sentence(fldCommonName))
+
+# Define species categories
+species_tbl$Category <- factor(NA, levels = c("Commercial",
+                                              "Elasmobranchs",
+                                              "Pelagics",
+                                              "Commercial flat",
+                                              "Non-commercial"
+                                              ))
+species_tbl$Category[species_tbl$Species %in% commerical]      <- "Commercial"
+species_tbl$Category[species_tbl$Species %in% elasmobranchs]   <- "Elasmobranchs"
+species_tbl$Category[species_tbl$Species %in% pelagics]        <- "Pelagics"
+species_tbl$Category[species_tbl$Species %in% non_commercial]  <- "Non-commercial"
+species_tbl$Category[species_tbl$Species %in% commerical_flat] <- "Commercial flat"
+
+# Tidy table
+species_tbl <-
+  species_tbl %>%
+  dplyr::arrange(Category, Species) %>%
+  dplyr::select(Category,
+                `Species code` = Species,
+                `Common name` = fldCommonName,
+                `Scientific name` = fldScientificName)
+
+# Write table to file
+write.table(species_tbl,
+            file = "./fig/species_tbl.txt",
+            quote = FALSE, sep = ",", row.names = FALSE)
+
+
+################################
+################################
 #### Species richness
 
 #### Summarise the number of species per haul
+length(unique(catches$Species))
 spp_per_haul <-
   catches %>%
   dplyr::group_by(Haul) %>%
@@ -258,17 +303,17 @@ mtext(side = 1, expression("Longitude (" * degree * ")"), cex = 1.25, line = 2)
 mtext(side = 2, expression("Latitude (" * degree * ")"), cex = 1.25, line = -2)
 dev.off()
 
-#### Table of the top 5 species wth the widest distribution
-hauls_league_tbl <-
+#### Table of the top 5 species with the largest weights
+wts_league_tbl <-
   catches %>%
   dplyr::group_by(Species) %>%
-  dplyr::summarise(n_hauls = length(unique(Haul))) %>%
-  dplyr::arrange(dplyr::desc(n_hauls)) %>%
+  dplyr::summarise(wt = sum(Catch_Kg)) %>%
+  dplyr::arrange(desc(wt)) %>%
   dplyr::slice(1:5L) %>%
   dplyr::select(Species,
-                `N` = n_hauls)
-write.table(hauls_league_tbl,
-            file = "./fig/hauls_league_tbl.txt",
+                `Weight` = wt)
+write.table(wts_league_tbl,
+            file = "./fig/wts_league_tbl.txt",
             quote = FALSE, sep = ",", row.names = FALSE)
 
 
