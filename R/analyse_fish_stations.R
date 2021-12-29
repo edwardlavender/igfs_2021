@@ -105,7 +105,8 @@ if(add_stations_type == 1L){
                             y = stations$fldHaulLatDecimalDegrees)
                        )
 } else if(add_stations_type== 2L){
-  add_stations <- list(x = stations$mid_lon, y = stations$mid_lat, cex = 1.5)
+  add_stations <- list(x = stations$mid_lon, y = stations$mid_lat, cex = 1.5,
+                       pch = 21, bg = "white", col = "black")
 } else {
   add_stations <- NULL
 }
@@ -115,23 +116,51 @@ axis_ls <- pretty_map(add_rasters = list(x = bathy,
                                          zlim = bathy_col_param$zlim,
                                          col = bathy_col_param$col),
                       add_polys = list(x = coast, col = "grey"),
-                      add_points = add_stations,
                       crop_spatial = TRUE,
                       xlim = boundaries[1:2], ylim = boundaries[3:4]
 )
 
+## Add ship's track
+x <- c(rbind(stations$fldShotLonDecimalDegrees, stations$fldHaulLonDecimalDegrees))
+y <- c(rbind(stations$fldShotLatDecimalDegrees, stations$fldHaulLatDecimalDegrees))
+n <- length(x)
+arrows(x0 = x[1:(n-1)],
+       x1 = x[2:n],
+       y0 = y[1:(n-1)],
+       y1 = y[2:n],
+       col = viridis::viridis(n),
+       length = 0,
+       lty = 3, lwd = 2
+       )
+
 ## Add stations
+# Mark all stations
+do.call(points, add_stations)
+# Flag invalid stations
+add_stations_invalid   <- add_stations
+add_stations_invalid$x <- dplyr::pull(stations[stations$fldValidityCode == "I", "mid_lon"])
+add_stations_invalid$y <- dplyr::pull(stations[stations$fldValidityCode == "I", "mid_lat"])
+add_stations_invalid$bg <- "black"
+do.call(points, add_stations_invalid)
 # Use arrows to mark movement from shooting to hauling locations
 arrows(x0 = stations$fldShotLonDecimalDegrees, y0 = stations$fldShotLatDecimalDegrees,
        x1 = stations$fldHaulLonDecimalDegrees, y1 = stations$fldHaulLatDecimalDegrees,
        col = "red",
-       length = 0.02)
+       length = 0.05)
 # Add CTD sampling stations
 points(ctd_xy$lon, ctd_xy$lat, pch = 18, col = "springgreen4", bg = "springgreen4", cex = 2.25)
 
 ## Label sampling stations
-text(-10.65, 54.45, "CTD", font = 2)
+# 1st station
+text(-10.607, 54.7, "1", font = 2)
+# last station
+text(-10.163, 54.36, "45", font = 2)
+# trawl stations (general label )
 text(-8.775, 56.525, "Trawl", font = 2)
+# Invalid stations
+text(-6.4, 55.4, "Invalid trawl", font = 2)
+# CTD stations
+text(-10.65, 54.45, "CTD", font = 2)
 
 ## Add scalebar and north arrow
 arrows(-10.5, y0 = 56, y1 = 56.8, length = 0.1, lwd = 2)
@@ -150,18 +179,29 @@ TeachingDemos::subplot({
   if(!is.null(add_stations)){
     add_stations_mini     <- add_stations
     add_stations_mini$cex <- 0.5
+    add_stations_invalid_mini     <- add_stations_invalid
+    add_stations_invalid_mini$cex <- 0.5
   }
   pretty_map(add_rasters = list(x = ocean,
                                 zlim = bathy_col_param$zlim,
                                 col = scales::alpha(bathy_col_param$col, trans),
                                 plot_method = raster::plot,
                                 legend = FALSE),
-             add_points = add_stations_mini,
              add_polys = list(x = isles, col = scales::alpha("lightgrey", trans)),
              xlim = xlim_inset, ylim = ylim_inset,
              crop_spatial = TRUE,
              pretty_axis_args = list(control_axis = list(lwd.ticks = 0, labels = FALSE, lwd = 2))
   )
+  arrows(x0 = x[1:(n-1)],
+         x1 = x[2:n],
+         y0 = y[1:(n-1)],
+         y1 = y[2:n],
+         col = viridis::viridis(n),
+         length = 0,
+         lty = 3, lwd = 1
+         )
+  do.call(points, add_stations_mini)
+  do.call(points, add_stations_invalid_mini)
   arrows(x0 = stations$fldShotLonDecimalDegrees, y0 = stations$fldShotLatDecimalDegrees,
          x1 = stations$fldHaulLonDecimalDegrees, y1 = stations$fldHaulLatDecimalDegrees,
          col = "red",
@@ -184,6 +224,9 @@ dev.off()
 ################################
 ################################
 #### Station summaries
+
+#### Station log
+# View(stations[, c("fldCruiseStationNumber", "fldDateTimeShot", "fldShotDepth")])
 
 #### Station details
 stations
