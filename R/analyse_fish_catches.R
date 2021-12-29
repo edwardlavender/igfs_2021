@@ -23,9 +23,10 @@ library(magrittr)
 library(prettyGraphics)
 
 #### Load data
-catches <- readRDS("./data/fish/catches.rds")
-coast   <- readRDS("./data/spatial/coast/coast_s.rds")
-bathy   <- raster::raster("./data/spatial/bathy/bathy.tif")
+stations <- readRDS("./data/fish/stations.rds")
+catches  <- readRDS("./data/fish/catches.rds")
+coast    <- readRDS("./data/spatial/coast/coast_s.rds")
+bathy    <- raster::raster("./data/spatial/bathy/bathy.tif")
 
 
 ################################
@@ -70,6 +71,41 @@ species_tbl <-
 write.table(species_tbl,
             file = "./fig/species_tbl.txt",
             quote = FALSE, sep = ",", row.names = FALSE)
+
+
+################################
+################################
+#### Station/catch log
+
+#### For each station, examine key catch summaries
+prompt <- TRUE
+lapply(split(stations, 1:nrow(stations)), function(site){
+  # site <- stations[1, , drop = FALSE]
+  raster::plot(coast, col = "grey")
+  points(site$fldHaulLonDecimalDegrees, site$fldHaulLatDecimalDegrees,
+         pch = 21, bg = "red")
+  catch <- catches[lubridate::round_date(catches$fldDateTimeShot, "minute") %in%
+                     lubridate::round_date(site$fldDateTimeShot, "minute"), ]
+
+  total_spp <- length(unique(catch$Species))
+  total_wt  <- sum(catch$Catch_Kg)
+  top_spp   <-
+    catch %>%
+    dplyr::group_by(Species) %>%
+    dplyr::summarise(wt = sum(Catch_Kg)) %>%
+    dplyr::arrange(dplyr::desc(wt)) %>%
+    dplyr::slice(1L) %>%
+    dplyr::select(Species, wt)
+  print(paste0("Haul:", site$fldCruiseStationNumber))
+  print(paste0("Date:", as.Date(site$fldDateTimeShot)))
+  print(paste0("Comment:", site$fldStationComment))
+  print(paste0("Number of species", ":", total_spp))
+  print(paste0("Total weight (kg)", ":", total_spp))
+  print(paste0("Most numerous species (kg)", ":", top_spp,
+               "(", catch$fldCommonName[catch$Species %in% top_spp$Species][1], ")"))
+  print("------------------------------\n")
+  if(prompt) readline("Press [Enter] to continue...")
+})
 
 
 ################################
