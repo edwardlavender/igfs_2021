@@ -12,9 +12,10 @@ Modelling, University of St Andrews, Scotland
 <sup>\*</sup> This repository is maintained by Edward Lavender
 (<el72@st-andrews.ac.uk>).
 
-[![Project Status: Active – The project has reached a stable, usable
-state and is being actively
-developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
+[![Project Status: Inactive – The project has reached a stable, usable
+state but is no longer being actively developed; support/maintenance
+will be provided as time
+allows.](https://www.repostatus.org/badges/latest/inactive.svg)](https://www.repostatus.org/#inactive)
 
 # Introduction
 
@@ -46,48 +47,46 @@ Groundfish Survey (November 2021). Photograph taken by author.*
 # Structure
 
 1.  `data-raw/` contains raw data for the project:
-    
-      - `vessel/` contains vessel tracking data;
-      - `ctd/` contains CTD data;
-      - `fish/` contains data on trawl stations, catches and biometrics
-        in a file named `IGFS2021_SummaryData.xlsx`, sourced from the
-        IGFS database by David Stokes;
-      - `spatial/` contains spatial data:
-          - `bathy/` contains bathymetry data for an area ({-15.75417°,
-            45.62500°}, {-15.75417°, 62.30417°}, {4.90000°, 62.30417°},
-            {4.90000°, 45.62500°}) around the British Isles from [The
-            General Bathymetric Chart of the
-            Oceans](https://www.gebco.net);
-          - `coast/` contains administrative boundary data for the
-            Republic of Ireland (`gadm36_IRL_0_sp.rds`) and the United
-            Kingdom (`gadm36_GBR_0_sp.rds`) from the [Global
-            Administrative Areas database](https://www.gadm.org/)
-            (version 3.6);
-          - `ICES` contains International Council for the Exploration of
-            the Sea (ICES) statistical area boundaries
-            (`/ICES_areas/ICES_Areas_20160601_cut_dense_3857.shp`) for
-            the North Atlantic from
-            [ICES](https://gis.ices.dk/geonetwork/srv/api/records/c784a0a3-752f-4b50-b02f-f225f6c815eb);
+
+    - `vessel/` contains vessel tracking data;
+    - `ctd/` contains CTD data;
+    - `fish/` contains data on trawl stations, catches and biometrics in
+      a file named `IGFS2021_SummaryData.xlsx`, sourced from the IGFS
+      database by David Stokes;
+    - `spatial/` contains spatial data:
+      - `bathy/` contains bathymetry data for an area ({-15.75417°,
+        45.62500°}, {-15.75417°, 62.30417°}, {4.90000°, 62.30417°},
+        {4.90000°, 45.62500°}) around the British Isles from [The
+        General Bathymetric Chart of the Oceans](https://www.gebco.net);
+      - `coast/` contains administrative boundary data for the Republic
+        of Ireland (`gadm36_IRL_0_sp.rds`) and the United Kingdom
+        (`gadm36_GBR_0_sp.rds`) from the [Global Administrative Areas
+        database](https://www.gadm.org/) (version 3.6);
+      - `ICES` contains International Council for the Exploration of the
+        Sea (ICES) statistical area boundaries
+        (`/ICES_areas/ICES_Areas_20160601_cut_dense_3857.shp`) for the
+        North Atlantic from
+        [ICES](https://gis.ices.dk/geonetwork/srv/api/records/c784a0a3-752f-4b50-b02f-f225f6c815eb);
 
 2.  `data/` contains processed data (from `process_data_raw.R`).
 
 3.  `R/` contains `R` code for data analysis:
-    
-      - `define_global_param.R` defines variables/parameters required by
-        multiple scripts;
-      - `process_data_raw.R` processes the raw data for use in this
-        project;
-      - `analyse_vessel_*.R` scripts analyse vessel data;
-      - `analyse_fish_*.R` scripts analyse fishing and fish data:
-          - `analyse_fish_stations.R` analyses trawl-location (station)
-            data;
-          - `analyse_fish_catches.R` analyses fish catches (i.e.,
-            species composition and weights);
-          - `analyse_fish_biometrics.R` analyses fish biometrics (i.e.,
-            length–frequency data);
-          - `analyse_fish_spp.R` analyses catches and biometrics for
-            selected species and groups;
-      - `analyse_ctd_casts*.R` analyses CTD data;
+
+    - `define_global_param.R` defines variables/parameters required by
+      multiple scripts;
+    - `process_data_raw.R` processes the raw data for use in this
+      project;
+    - `analyse_vessel_*.R` scripts analyse vessel data;
+    - `analyse_fish_*.R` scripts analyse fishing and fish data:
+      - `analyse_fish_stations.R` analyses trawl-location (station)
+        data;
+      - `analyse_fish_catches.R` analyses fish catches (i.e., species
+        composition and weights);
+      - `analyse_fish_biometrics.R` analyses fish biometrics (i.e.,
+        length–frequency data);
+      - `analyse_fish_spp.R` analyses catches and biometrics for
+        selected species and groups;
+    - `analyse_ctd_casts*.R` analyses CTD data;
 
 4.  `fig/` contains figures.
 
@@ -110,12 +109,12 @@ This repository uses a number of non-default packages, available from
 can be installed with `install.packages()`. Two packages that are only
 available on [GitHub](https://github.com/) are also used:
 
-  - [`prettyGraphics`](https://github.com/edwardlavender/prettyGraphics).
-    This package is used for plotting.
-  - [`utils.add`](https://github.com/edwardlavender/utils.add). The
-    `utils.add::basic_stats()` function is sometimes used as a
-    convenient routine for summarising data. This could be replaced by
-    base `R` functions, such as `summary()`.
+- [`prettyGraphics`](https://github.com/edwardlavender/prettyGraphics).
+  This package is used for plotting.
+- [`utils.add`](https://github.com/edwardlavender/utils.add). The
+  `utils.add::basic_stats()` function is sometimes used as a convenient
+  routine for summarising data. This could be replaced by base `R`
+  functions, such as `summary()`.
 
 ## References
 
